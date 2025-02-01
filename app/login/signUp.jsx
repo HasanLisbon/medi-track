@@ -1,9 +1,25 @@
 import { View, Text, TextInput, TouchableOpacity } from "react-native";
 import React from "react";
 import { useRouter } from "expo-router";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 
 export default function SignUp() {
   const router = useRouter();
+
+  const onCreateAccount = () => {
+    createUserWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        // Signed up
+        const user = userCredential.user;
+        // ...
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        // ..
+      });
+  };
+
   return (
     <View className="p-6">
       <Text className="text-[25px] font-bold">Create New Account</Text>
