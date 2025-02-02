@@ -8,7 +8,7 @@ export default function LoginScreen() {
     <View>
       <View className="flex items-center mt-5">
         <Image
-          source={require("../../assets/images/login.png")}
+          source={require("../assets/images/login.png")}
           className="w-[13.5rem] h-[28rem] rounded-[23px]"
         />
       </View>

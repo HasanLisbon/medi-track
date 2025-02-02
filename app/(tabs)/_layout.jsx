@@ -1,9 +1,26 @@
 import { View, Text } from "react-native";
-import React from "react";
-import { Tabs } from "expo-router";
+import React, { useState } from "react";
+import { Tabs, useRouter } from "expo-router";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "../../config/FirebaseConfig";
+import { useEffect } from "react";
+import { getLocalStorage } from "../service/Storage";
 
 export default function TabLayout() {
+  const router = useRouter();
+
+  useEffect(() => {
+    GetUserDetail();
+  }, []);
+
+  const GetUserDetail = async () => {
+    const userInfo = await getLocalStorage("userDetail");
+    if (!userInfo) {
+      router.replace("/login/signIn");
+    }
+  };
+
   return (
     <Tabs screenOptions={{ headerShown: false }}>
       <Tabs.Screen
