@@ -33,7 +33,6 @@ export default function SignIn() {
         // ...
       })
       .catch((error) => {
-        console.log(error.code, error.message);
         const errorCode = error.code;
         const errorMessages = {
           "auth/invalid-email": "Email address is not valid",
