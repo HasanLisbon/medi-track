@@ -1,7 +1,6 @@
-import { View, Text, Image } from "react-native";
-import React from "react";
-import { TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
+import React from "react";
+import { Image, Text, TouchableOpacity, View } from "react-native";
 
 export default function EmptyState() {
   const router = useRouter();

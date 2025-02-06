@@ -1,7 +1,8 @@
-import { View, Text, Image, Platform, TouchableOpacity } from "react-native";
-import React from "react";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useRouter } from "expo-router";
+import React from "react";
+import { Image, TouchableOpacity, View } from "react-native";
+import { responsiveSize } from "../service/CalculateResponsiveSize";
 
 export default function AddNewMedicationHeader() {
   const router = useRouter();
@@ -17,7 +18,7 @@ export default function AddNewMedicationHeader() {
           router.back();
         }}
       >
-        <Ionicons name="arrow-back" size={24} color="black" />
+        <Ionicons name="arrow-back" size={responsiveSize(24)} color="black" />
       </TouchableOpacity>
     </View>
   );

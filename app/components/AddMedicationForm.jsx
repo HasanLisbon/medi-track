@@ -1,39 +1,53 @@
+import Ionicons from "@expo/vector-icons/Ionicons";
+import RNDateTimePicker from "@react-native-community/datetimepicker";
+import { doc, setDoc } from "firebase/firestore";
+import React, { useState } from "react";
 import {
-  View,
+  ActivityIndicator,
+  FlatList,
+  Platform,
+  StyleSheet,
   Text,
   TextInput,
-  StyleSheet,
-  FlatList,
   TouchableOpacity,
-  Platform,
+  View,
 } from "react-native";
-import React, { useState } from "react";
-import Ionicons from "@expo/vector-icons/Ionicons";
+import { useToast } from "react-native-toast-notifications";
+import { db } from "../../config/FirebaseConfig";
 import Colors from "../constant/Colors";
 import { TypeList, WhenToTake } from "../constant/Options";
-import RNPickerSelect from "react-native-picker-select";
-import DropdownPicker from "./DropdownPicker";
-import RNDateTimePicker from "@react-native-community/datetimepicker";
+import {
+  getResponsiveSize,
+  responsiveSize,
+} from "../service/CalculateResponsiveSize";
 import {
   fomratDateForText,
   FormatDate,
   formatTime,
+  getDatesRange,
 } from "../service/ConvertDateTime";
-import { getFontSize } from "../service/CalculateResponsiveSize";
-import { db } from "../../config/FirebaseConfig";
-import { doc, setDoc } from "firebase/firestore";
 import { getLocalStorage } from "../service/Storage";
-import { useToast } from "react-native-toast-notifications";
+import DropdownPicker from "./DropdownPicker";
 
 export default function AddMedicationForm() {
   const [formData, setFormData] = useState();
   const [showStartDate, setShowStartDate] = useState();
   const [showEndDate, setShowEndDate] = useState();
   const [showTimePicker, setShowTimePicker] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const toast = useToast();
 
+  /*   useEffect(() => {
+    onHandleInputChange("startDate", getTimestamp(new Date()));
+    onHandleInputChange("endDate", getTimestamp(new Date()));
+  }, []); */
+
   const onHandleInputChange = (field, value) => {
+    if (field === "startDate" || field === "endDate") {
+      console.log(value);
+    }
+
     setFormData((prev) => ({
       ...prev,
       [field]: value,
@@ -62,20 +76,39 @@ export default function AddMedicationForm() {
       return;
     }
 
+    const dates = getDatesRange(formData?.startDate, formData?.endDate);
+
+    setLoading(true);
+    console.log(dates);
+
     try {
       await setDoc(doc(db, "medication", docId), {
         ...formData,
         userEmail: user?.email,
+        dates: dates,
         docId: docId,
       });
-      console.log("Data Saved!");
+      toast.show("New medication added successfully!", {
+        type: "success",
+        placement: "top",
+        duration: 5000,
+        animationType: "slide-in",
+      });
+      setLoading(false);
     } catch (error) {
       console.log(error);
+      toast.show(error.message, {
+        type: "danger",
+        placement: "top",
+        duration: 5000,
+        animationType: "slide-in",
+      });
+      setLoading(false);
     }
   };
 
   return (
-    <View style={{ padding: 25 }}>
+    <View style={{ padding: responsiveSize(25) }}>
       <Text style={styles.header}>Add New Medication</Text>
       <View style={styles.inputGroup}>
         <Ionicons
@@ -94,7 +127,7 @@ export default function AddMedicationForm() {
       {/* Type List */}
       <FlatList
         style={{
-          marginTop: 5,
+          marginTop: responsiveSize(5),
         }}
         data={TypeList}
         horizontal
@@ -103,7 +136,7 @@ export default function AddMedicationForm() {
             onPress={() => onHandleInputChange("type", item)}
             style={[
               styles.inputGroup,
-              { marginRight: 10 },
+              { marginRight: responsiveSize(10) },
               {
                 backgroundColor:
                   item.name === formData?.type?.name ? Colors.PRIMARY : "white",
@@ -166,7 +199,7 @@ export default function AddMedicationForm() {
           <Ionicons
             name="calendar-outline"
             style={styles.icon}
-            size={24}
+            size={getResponsiveSize(24)}
             color="black"
           />
           <Text style={styles.text}>
@@ -199,7 +232,7 @@ export default function AddMedicationForm() {
           <Ionicons
             name="calendar-outline"
             style={styles.icon}
-            size={24}
+            size={responsiveSize(24)}
             color="black"
           />
           <Text style={styles.text}>
@@ -234,7 +267,7 @@ export default function AddMedicationForm() {
           <Ionicons
             name="time-outline"
             style={styles.icon}
-            size={24}
+            size={responsiveSize(24)}
             color="black"
           />
           <Text style={styles.text}>
@@ -258,7 +291,11 @@ export default function AddMedicationForm() {
       )}
 
       <TouchableOpacity style={styles.button} onPress={() => saveMedication()}>
-        <Text style={styles.buttonText}>Add New Medication</Text>
+        {loading ? (
+          <ActivityIndicator size={"large"} color={"white"} />
+        ) : (
+          <Text style={styles.buttonText}>Add New Medication</Text>
+        )}
       </TouchableOpacity>
     </View>
   );
@@ -266,7 +303,7 @@ export default function AddMedicationForm() {
 
 const styles = StyleSheet.create({
   header: {
-    fontSize: 25,
+    fontSize: responsiveSize(25),
     fontWeight: "bold",
   },
   inputGroup: {
@@ -276,49 +313,49 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 10,
-    minHeight: 50,
+    marginTop: responsiveSize(10),
+    minHeight: responsiveSize(50),
     backgroundColor: "white",
   },
   textInput: {
     flex: 1,
     marginLeft: 10,
-    fontSize: 16,
+    fontSize: getResponsiveSize(16),
   },
   icon: {
     color: Colors.PRIMARY,
     borderRightWidth: 1,
-    paddingRight: 10,
-    paddingLeft: 12,
+    paddingRight: responsiveSize(10),
+    paddingLeft: responsiveSize(12),
     borderColor: Colors.LIGHT_GRAY_BORDER,
   },
   typeText: {
-    fontSize: 16,
-    paddingLeft: 12,
-    paddingRight: 12,
+    fontSize: responsiveSize(16),
+    paddingLeft: responsiveSize(12),
+    paddingRight: responsiveSize(12),
   },
   text: {
-    fontSize: getFontSize(16),
-    padding: 5,
+    fontSize: responsiveSize(16),
+    padding: responsiveSize(5),
     flex: 1,
-    marginLeft: 10,
+    marginLeft: responsiveSize(10),
   },
 
   dateInputGroup: {
     flexDirection: "row",
-    gap: 10,
+    gap: responsiveSize(10),
   },
 
   button: {
-    marginTop: getFontSize(20),
-    padding: 15,
+    marginTop: responsiveSize(20),
+    padding: responsiveSize(15),
     backgroundColor: Colors.PRIMARY,
     borderRadius: 15,
     width: "100%",
   },
 
   buttonText: {
-    fontSize: getFontSize(17),
+    fontSize: responsiveSize(17),
     color: "white",
     textAlign: "center",
   },

@@ -1,15 +1,16 @@
+import { AntDesign } from "@expo/vector-icons";
 import React, { useCallback, useRef, useState } from "react";
 import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
   FlatList,
   Modal,
-  TouchableWithoutFeedback,
   Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
 } from "react-native";
-import { AntDesign } from "@expo/vector-icons";
+import { responsiveSize } from "../service/CalculateResponsiveSize";
 
 export default function DropdownPicker({ data, onChange, placeholder }) {
   const [expanded, setExpanded] = useState(false);
@@ -36,7 +37,9 @@ export default function DropdownPicker({ data, onChange, placeholder }) {
         const finalValue =
           topOffset +
           heightOfComponent +
-          (Platform.OS === "android" ? 210 : 270);
+          (Platform.OS === "android"
+            ? responsiveSize(210)
+            : responsiveSize(270));
 
         setTop(finalValue);
       }}
@@ -88,39 +91,39 @@ export default function DropdownPicker({ data, onChange, placeholder }) {
 
 const styles = StyleSheet.create({
   backdrop: {
-    padding: 20,
+    padding: responsiveSize(20),
     justifyContent: "center",
     alignItems: "center",
     flex: 1,
   },
   optionItem: {
-    height: 40,
+    height: responsiveSize(40),
     justifyContent: "center",
   },
   separator: {
-    height: 4,
+    height: responsiveSize(4),
   },
   options: {
     position: "absolute",
     backgroundColor: "white",
     alignSelf: "center",
     width: "96%",
-    padding: 10,
+    padding: responsiveSize(10),
     borderRadius: 6,
-    maxHeight: 250,
+    maxHeight: responsiveSize(250),
   },
   text: {
-    fontSize: 15,
+    fontSize: responsiveSize(15),
     opacity: 0.8,
   },
   button: {
-    height: 50,
+    height: responsiveSize(50),
     justifyContent: "space-between",
     backgroundColor: "#fff",
     flexDirection: "row",
     width: "90%",
     alignItems: "center",
-    paddingHorizontal: 15,
+    paddingHorizontal: responsiveSize(15),
     borderRadius: 8,
   },
 });
