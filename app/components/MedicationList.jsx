@@ -5,6 +5,7 @@ import {
   ActivityIndicator,
   FlatList,
   Image,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
@@ -17,11 +18,15 @@ import { getDateRangeToDisplay } from "../service/ConvertDateTime";
 import { getLocalStorage } from "../service/Storage";
 import MedicationCardItem from "./MedicationCardItem";
 import { responsiveSize } from "../service/CalculateResponsiveSize";
+import { router, useRouter } from "expo-router";
+import EmptyState from "./EmptyState";
 
 export default function MedicationList() {
   const [medList, setMedList] = useState();
   const [dateRange, setDateRange] = useState();
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
+
   const [selectedDate, setSelectedDate] = useState(
     moment().format("MM/DD/YYYY")
   );
@@ -33,7 +38,6 @@ export default function MedicationList() {
 
   const getDateRangeList = () => {
     const dRange = getDateRangeToDisplay();
-    console.log(dRange);
     setDateRange(dRange);
   };
 
@@ -51,7 +55,6 @@ export default function MedicationList() {
       const querySnapshot = await getDocs(q);
       setMedList([]);
       querySnapshot.forEach((doc) => {
-        console.log("docId: " + doc.id + " ==>", doc.data());
         setMedList((prev) => [...prev, doc.data()]);
       });
       setLoading(false);
@@ -122,24 +125,32 @@ export default function MedicationList() {
       </View>
 
       {loading ? (
-        <View
-          style={{
-            position: "absolute",
-            top: responsiveSize(500),
-            alignSelf: "center",
-          }}
-        >
-          <ActivityIndicator size={"large"} color={"black"} />
-        </View>
-      ) : (
+        <ActivityIndicator
+          color="#808080"
+          size="large"
+          style={{ margin: "auto" }}
+        />
+      ) : medList?.length > 0 ? (
         <FlatList
           data={medList}
           renderItem={({ item, index }) => (
-            <TouchableOpacity>
-              <MedicationCardItem medicine={item} />
+            <TouchableOpacity
+              onPress={() =>
+                router.push({
+                  pathname: "/action-modal",
+                  params: {
+                    ...item,
+                    selectedDate: selectedDate,
+                  },
+                })
+              }
+            >
+              <MedicationCardItem medicine={item} selectedDate={selectedDate} />
             </TouchableOpacity>
           )}
         />
+      ) : (
+        <EmptyState />
       )}
     </View>
   );

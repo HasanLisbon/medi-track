@@ -1,11 +1,21 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Image, StyleSheet, Text, View } from "react-native";
 import Colors from "../constant/Colors";
 
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { responsiveSize } from "../service/CalculateResponsiveSize";
 
-export default function MedicationCardItem({ medicine }) {
+export default function MedicationCardItem({ medicine, selectedDate }) {
+  const [status, setStatus] = useState();
+  useEffect(() => {
+    checkStatus();
+  }, [medicine]);
+
+  const checkStatus = () => {
+    const data = medicine?.action?.find((item) => item.date === selectedDate);
+    console.log("--", data);
+    setStatus(data);
+  };
   console.log("Medicine", medicine);
   return (
     <View style={styles.container}>
@@ -41,6 +51,16 @@ export default function MedicationCardItem({ medicine }) {
           {medicine?.reminder}
         </Text>
       </View>
+      {status?.date && (
+        <View style={styles.statusContainer}>
+          {status?.status === "Taken" && (
+            <Ionicons name="checkmark-circle" size={24} color="green" />
+          )}
+          {status?.status === "Missed" && (
+            <Ionicons name="close-circle" size={24} color="red" />
+          )}
+        </View>
+      )}
     </View>
   );
 }
@@ -74,5 +94,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderWidth: 1,
     borderColor: Colors.LIGHT_GRAY_BORDER,
+  },
+  statusContainer: {
+    position: "absolute",
+    top: 5,
   },
 });
